@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "195927192535",
+    "firebase_url": "https://tasklist-b6fce-default-rtdb.firebaseio.com",
+    "project_id": "tasklist-b6fce",
+    "storage_bucket": "tasklist-b6fce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195927192535:android:5136b40f05d98bb2d49192",
+        "android_client_info": {
+          "package_name": "com.example.tasklist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXge4CLMAbP35i5FB6YUGsS6WskvXVyMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
