@@ -12,11 +12,11 @@ class TaskModel {
     this.isCompleted = false,
   });
 
-  // Convert from/to Firebase
   factory TaskModel.fromMap(Map<String, dynamic> data, String id) {
     return TaskModel(
       id: id,
       title: data['title'] ?? 'Sem título',
+      description: data['description'],
       isCompleted: data['isCompleted'] ?? false,
     );
   }
@@ -24,6 +24,7 @@ class TaskModel {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
+      'description': description,
       'isCompleted': isCompleted,
     };
   }

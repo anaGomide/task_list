@@ -7,10 +7,8 @@ class FirebaseService {
   final CollectionReference _taskCollection = FirebaseFirestore.instance.collection('tasks');
 
   Future<List<TaskModel>> fetchTasks() async {
-    print('Fetching tasks...');
     try {
       final snapshot = await _taskCollection.get();
-      print('Fetched ${snapshot.docs.length} tasks');
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return TaskModel.fromMap(data, doc.id);

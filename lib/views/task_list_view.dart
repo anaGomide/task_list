@@ -4,10 +4,14 @@ import 'package:provider/provider.dart';
 
 import '../viewmodels/task_view_model.dart';
 import '../widgets/bottom_navigation_bar_widget.dart';
+import '../widgets/create_task_modal.dart';
 import '../widgets/custom_nav_bar_widget.dart';
+import '../widgets/search_task_widget.dart';
 import '../widgets/task_card.dart';
 
 class TaskListView extends StatefulWidget {
+  const TaskListView({super.key});
+
   @override
   _TaskListViewState createState() => _TaskListViewState();
 }
@@ -23,92 +27,16 @@ class _TaskListViewState extends State<TaskListView> {
     _loadTasksFuture = Provider.of<TaskViewModel>(context, listen: false).fetchTasks();
   }
 
-  void _showCreateTaskModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (BuildContext context) {
-        String taskTitle = '';
-        String taskDescription = '';
-
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'New Task',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                onChanged: (value) {
-                  taskTitle = value;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                onChanged: (value) {
-                  taskDescription = value;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (taskTitle.isNotEmpty) {
-                    Provider.of<TaskViewModel>(context, listen: false).addTask(taskTitle, taskDescription);
-                    Navigator.pop(context); // Fecha a modal
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text('Create Task'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final taskViewModel = Provider.of<TaskViewModel>(context);
 
-    // Filtra as tarefas com base na consulta de pesquisa
     final filteredTasks = _searchQuery.isEmpty
-        ? taskViewModel.tasks
-        : taskViewModel.tasks.where((task) {
-            return task.title.toLowerCase().contains(_searchQuery.toLowerCase());
-          }).toList();
+        ? taskViewModel.tasks.where((task) => !task.isCompleted).toList()
+        : taskViewModel.tasks.where((task) => task.title.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
 
     return Scaffold(
-      appBar: CustomNavbar(
+      appBar: const CustomNavbar(
         username: 'John',
         profileImage: 'assets/avatar.png',
       ),
@@ -132,34 +60,20 @@ class _TaskListViewState extends State<TaskListView> {
               children: [
                 _isSearchActive
                     ? // Campo de Busca
-                    TextField(
-                        autofocus: true,
-                        onChanged: (value) {
+                    SearchFieldWidget(
+                        hintText: 'Search tasks',
+                        searchQuery: _searchQuery,
+                        onSearchChanged: (value) {
                           setState(() {
                             _searchQuery = value;
                           });
                         },
-                        decoration: InputDecoration(
-                          hintText: 'Search tasks',
-                          prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.primary),
-                            onPressed: () {
-                              setState(() {
-                                _searchQuery = '';
-                                _isSearchActive = false;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                          ),
-                        ),
+                        onClear: () {
+                          setState(() {
+                            _searchQuery = '';
+                            _isSearchActive = false;
+                          });
+                        },
                       )
                     : // Welcome Header
                     Column(
@@ -185,23 +99,48 @@ class _TaskListViewState extends State<TaskListView> {
                         ],
                       ),
                 const SizedBox(height: 16),
-                // Lista de Tarefas ou Mensagem de "Nenhum Resultado"
                 Expanded(
                   child: filteredTasks.isEmpty
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/no_result.svg',
-                              width: 120,
-                              height: 120,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No result found.',
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ],
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/no_result.svg',
+                                width: 120,
+                                height: 120,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _searchQuery.isNotEmpty ? 'No result found.' : 'You have no task listed.',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              if (_searchQuery.isEmpty) ...[
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    CreateTaskModal.show(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFE6F2FF),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                  icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                                  label: Text(
+                                    'Create task',
+                                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         )
                       : ListView.builder(
                           itemCount: filteredTasks.length,
@@ -217,13 +156,14 @@ class _TaskListViewState extends State<TaskListView> {
         },
       ),
       bottomNavigationBar: BottomNavBarWidget(
+        currentIndex: 0,
         onSearchTapped: (index) {
           setState(() {
-            _isSearchActive = true; // Ativa o modo de busca
+            _isSearchActive = true;
           });
         },
         onCreateTapped: () {
-          _showCreateTaskModal(context);
+          CreateTaskModal.show(context);
         },
       ),
     );

@@ -27,9 +27,9 @@ class TaskViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addTask(String title, String description) async {
+  Future<void> addTask(String title, String description, bool isCompleted) async {
     if (title.isEmpty) return;
-    final task = TaskModel(id: '', title: title, description: description);
+    final task = TaskModel(id: '', title: title, description: description, isCompleted: isCompleted);
     final docRef = await _firebaseService.addTask(task);
     task.id = docRef.id;
     await fetchTasks();

@@ -6,10 +6,10 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String? profileImage;
 
   const CustomNavbar({
-    Key? key,
+    super.key,
     required this.username,
     this.profileImage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +21,14 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo SVG
           Row(
             children: [
               SvgPicture.asset(
-                'assets/logo.svg', // Caminho para o arquivo SVG
-                height: 28, // Altura da logo
+                'assets/logo.svg',
+                height: 28,
               ),
             ],
           ),
-          // Nome do usuário e avatar
           Row(
             children: [
               Text(
@@ -41,9 +39,7 @@ class CustomNavbar extends StatelessWidget implements PreferredSizeWidget {
               profileImage != null && profileImage!.isNotEmpty
                   ? CircleAvatar(
                       radius: 20,
-                      backgroundImage: profileImage!.startsWith('assets/')
-                          ? AssetImage(profileImage!) // Imagem dos assets
-                          : NetworkImage(profileImage!) as ImageProvider,
+                      backgroundImage: profileImage!.startsWith('assets/') ? AssetImage(profileImage!) : NetworkImage(profileImage!) as ImageProvider,
                     )
                   : CircleAvatar(
                       radius: 20,

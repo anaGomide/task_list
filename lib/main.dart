@@ -5,13 +5,12 @@ import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'viewmodels/task_view_model.dart';
+import 'views/task_done_view.dart';
 import 'views/task_list_view.dart';
 
 void main() async {
-  // Inicializa o binding antes de qualquer operação
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializa o Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -33,10 +32,10 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: const Color(0xFF007FFF), // Primary color
           scaffoldBackgroundColor: const Color(0xFFFFFFFF), // Background branco
-          colorScheme: ColorScheme.light(
-            primary: const Color(0xFF007FFF), // Primary color
-            secondary: const Color(0x1A007FFF), // 10% de saturação
-            background: const Color(0xFFF5F7F9), // Cinza claro
+          colorScheme: const ColorScheme.light(
+            primary: Color(0xFF007FFF), // Primary color
+            secondary: Color(0x1A007FFF), // 10% de saturação
+            surface: Color(0xFFF5F7F9), // Cinza claro
           ),
           textTheme: TextTheme(
             // Weight 700, size 20
@@ -80,6 +79,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/todo',
         routes: {
           '/todo': (context) => TaskListView(),
+          '/done': (context) => TasksDoneView(),
         },
       ),
     );

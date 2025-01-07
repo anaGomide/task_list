@@ -4,10 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class BottomNavBarWidget extends StatefulWidget {
   final Function onCreateTapped;
   final Function(int) onSearchTapped;
+  final int currentIndex;
 
   BottomNavBarWidget({
+    super.key,
     required this.onCreateTapped,
     required this.onSearchTapped,
+    this.currentIndex = 0,
   });
 
   @override
@@ -15,37 +18,39 @@ class BottomNavBarWidget extends StatefulWidget {
 }
 
 class _BottomNavBarWidgetState extends State<BottomNavBarWidget> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.currentIndex;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-
-      switch (index) {
-        case 0:
-          // Ação para a aba "Todo"
-          Navigator.pushNamed(context, '/todo');
-          break;
-        case 1:
-          // Ação para a aba "Create"
-          widget.onCreateTapped();
-          break;
-        case 2:
-          // Ação para a aba "Search"
-          widget.onSearchTapped(index);
-          break;
-        case 3:
-          // Ação para a aba "Done"
-          Navigator.pushNamed(context, '/done');
-          break;
-      }
     });
+
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/todo');
+        break;
+      case 1:
+        widget.onCreateTapped();
+        break;
+      case 2:
+        widget.onSearchTapped(index);
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/done');
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
           top: BorderSide(
